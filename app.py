@@ -40,7 +40,7 @@ def analyze_cv(text):
 
 # Streamlit UI
 def main():
-    st.title('CV Analyzer')
+    st.title('SamCV Analyzer')
 
     # Upload CV file (PDF or DOCX)
     uploaded_file = st.file_uploader("Upload your CV (PDF or DOCX)", type=["pdf", "docx"])
