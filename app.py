@@ -52,9 +52,9 @@ def main():
         elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             cv_text = extract_text_from_docx(uploaded_file)
 
-        # Display extracted text
-        st.subheader("Extracted CV Content:")
-        st.text(cv_text)
+        # Create a collapsible section for Extracted CV Content
+        with st.expander("Extracted CV Content"):
+            st.text(cv_text)
 
         # Perform analysis
         strength_analysis, weakness_analysis, advice_analysis = analyze_cv(cv_text)
