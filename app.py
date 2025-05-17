@@ -1,42 +1,19 @@
 import streamlit as st
-from utils.extract_text import extract_text_from_pdf, extract_text_from_docx, extract_text_from_txt
+from utils.affinda_api import parse_cv_affinda  # Import your helper
 from utils.analyze_cv import check_sections, count_keywords, analyze_length
 
-st.title("CV Analysis Tool")
+st.title("CV Analysis Tool with Affinda API")
 
 uploaded_file = st.file_uploader("Upload your CV (pdf, docx, txt)", type=["pdf", "docx", "txt"])
 
 if uploaded_file is not None:
-    file_type = uploaded_file.type
-    text = ""
+    parsed_data = parse_cv_affinda(uploaded_file)
+    if parsed_data:
+        st.subheader("Parsed Resume Data (from Affinda)")
+        st.json(parsed_data)  # Display raw JSON for now; you can customize
 
-    if file_type == "application/pdf":
-        text = extract_text_from_pdf(uploaded_file)
-    elif file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        text = extract_text_from_docx(uploaded_file)
-    elif file_type == "text/plain":
-        text = extract_text_from_txt(uploaded_file)
-    else:
-        st.error("Unsupported file type")
-
-    if text:
-        st.subheader("Extracted Text Preview")
-        st.write(text[:1000] + "...")  # show first 1000 chars
-
-        # Analyze sections
-        sections_found = check_sections(text)
-        st.subheader("Sections Found")
-        for section, found in sections_found.items():
-            st.write(f"{section.title()}: {'✅' if found else '❌'}")
-
-        # Analyze keywords
-        keywords = ["python", "project", "management", "team", "machine learning"]
-        keyword_counts = count_keywords(text, keywords)
-        st.subheader("Keyword Counts")
-        for k, v in keyword_counts.items():
-            st.write(f"{k}: {v}")
-
-        # Analyze length
-        length_feedback = analyze_length(text)
-        st.subheader("Length Feedback")
-        st.write(length_feedback)
+        # Optionally, you can extract text from parsed_data and run your analysis:
+        # For example:
+        # full_text = parsed_data.get('text', '')
+        # sections_found = check_sections(full_text)
+        # st.write(sections_found)
