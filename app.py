@@ -1,5 +1,24 @@
 import streamlit as st
+import PyPDF2
+import docx
 
+# Function to extract text from PDF
+def extract_text_from_pdf(pdf_file):
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    return text
+
+# Function to extract text from DOCX (Word) file
+def extract_text_from_docx(docx_file):
+    doc = docx.Document(docx_file)
+    text = ""
+    for para in doc.paragraphs:
+        text += para.text + "\n"
+    return text
+
+# Function to analyze CV content
 def analyze_cv(cv_text):
     strengths = []
     weaknesses = []
@@ -31,35 +50,48 @@ def analyze_cv(cv_text):
 def main():
     st.title("CV Strengths & Weaknesses Analyzer")
 
-    cv_text = st.text_area("Paste your CV text here:")
+    # File uploader
+    uploaded_file = st.file_uploader("Upload your CV (PDF, DOCX)", type=["pdf", "docx"])
 
-    if st.button("Analyze"):
-        if not cv_text.strip():
-            st.warning("Please enter CV text to analyze.")
-            return
+    if uploaded_file is not None:
+        # Extract text from the uploaded file
+        if uploaded_file.type == "application/pdf":
+            cv_text = extract_text_from_pdf(uploaded_file)
+        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            cv_text = extract_text_from_docx(uploaded_file)
 
-        strengths, weaknesses, advice = analyze_cv(cv_text)
+        # Display extracted text (for debugging or review)
+        st.subheader("Extracted Text")
+        st.text_area("CV Text", cv_text, height=300)
 
-        st.subheader("Strengths")
-        if strengths:
-            for s in strengths:
-                st.write(f"- {s}")
-        else:
-            st.write("No specific strengths detected.")
+        # Analyze the CV
+        if st.button("Analyze CV"):
+            if not cv_text.strip():
+                st.warning("Please upload a CV with text.")
+                return
 
-        st.subheader("Weaknesses")
-        if weaknesses:
-            for w in weaknesses:
-                st.write(f"- {w}")
-        else:
-            st.write("No specific weaknesses detected.")
+            strengths, weaknesses, advice = analyze_cv(cv_text)
 
-        st.subheader("Advice")
-        if advice:
-            for a in advice:
-                st.write(f"- {a}")
-        else:
-            st.write("No advice available.")
+            st.subheader("Strengths")
+            if strengths:
+                for s in strengths:
+                    st.write(f"- {s}")
+            else:
+                st.write("No specific strengths detected.")
+
+            st.subheader("Weaknesses")
+            if weaknesses:
+                for w in weaknesses:
+                    st.write(f"- {w}")
+            else:
+                st.write("No specific weaknesses detected.")
+
+            st.subheader("Advice")
+            if advice:
+                for a in advice:
+                    st.write(f"- {a}")
+            else:
+                st.write("No advice available.")
 
 
 if __name__ == "__main__":
