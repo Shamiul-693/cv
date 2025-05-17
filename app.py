@@ -2,7 +2,7 @@ import streamlit as st
 from utils.affinda_api import parse_cv_affinda  # Import your helper
 from utils.analyze_cv import check_sections, count_keywords, analyze_length
 
-st.title("CV Analysis Tool with Affinda API")
+st.title("CV Analysis Tool SamCV")
 
 uploaded_file = st.file_uploader("Upload your CV (pdf, docx, txt)", type=["pdf", "docx", "txt"])
 
