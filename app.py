@@ -1,35 +1,6 @@
 import streamlit as st
 from utils.extract_text import extract_text_from_pdf, extract_text_from_docx, extract_text_from_txt
 from utils.analyze_cv import check_sections, count_keywords, analyze_length
-import requests
-
-def check_grammar_languagetool(text):
-    url = "https://api.languagetool.org/v2/check"
-    data = {
-        'text': text,
-        'language': 'en-US',
-    }
-    response = requests.post(url, data=data)
-    result = response.json()
-
-    matches = result.get('matches', [])
-    corrections = []
-    for match in matches:
-        message = match['message']
-        context = match['context']['text']
-        offset = match['context']['offset']
-        length = match['context']['length']
-        replacement = match.get('replacements', [{}])[0].get('value', '')
-
-        corrections.append({
-            'message': message,
-            'context': context,
-            'offset': offset,
-            'length': length,
-            'suggestion': replacement
-        })
-
-    return corrections
 
 st.title("CV Analysis Tool")
 
@@ -69,16 +40,3 @@ if uploaded_file is not None:
         length_feedback = analyze_length(text)
         st.subheader("Length Feedback")
         st.write(length_feedback)
-
-        # Grammar Check with LanguageTool API
-        st.subheader("Grammar & Style Suggestions")
-        corrections = check_grammar_languagetool(text)
-        if corrections:
-            for i, corr in enumerate(corrections[:10]):  # Show first 10 suggestions
-                st.write(f"{i+1}. {corr['message']}")
-                st.write(f"Context: ...{corr['context']}...")
-                if corr['suggestion']:
-                    st.write(f"Suggestion: {corr['suggestion']}")
-                st.write("---")
-        else:
-            st.write("No grammar or style issues found!")
